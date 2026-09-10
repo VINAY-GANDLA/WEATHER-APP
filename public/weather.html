@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1d35">
+    <title>Atmos | Current conditions</title>
+    <link rel="stylesheet" href="weather.css">
+</head>
+
+<body>
+    <div class="weather-page">
+        <div class="weather-haze weather-haze-one"></div>
+        <div class="weather-haze weather-haze-two"></div>
+        <div class="weather-grid" aria-hidden="true"></div>
+
+        <header class="weather-header">
+            <a class="brand" href="/" aria-label="Atmos home"><span
+                    class="brand-mark"><i></i><i></i><i></i></span><span>atmos<span
+                        class="brand-dot">.</span></span></a>
+            <a class="back-link" href="/"><span aria-hidden="true">&#8592;</span> New search</a>
+        </header>
+
+        <main class="weather-main" id="weather-content" aria-live="polite">
+            <p class="eyebrow"><span></span> Current observation</p>
+            <div class="location-row">
+                <div>
+                    <h1 id="location">Loading...</h1>
+                    <p class="coordinates" id="coordinates">Reading the atmosphere around you</p>
+                </div>
+                <p class="updated"><span class="live-dot"></span> Live reading</p>
+            </div>
+
+            <section class="observation-card">
+                <div class="condition-visual" id="condition-visual" aria-hidden="true"><span
+                        class="weather-symbol"></span></div>
+                <div class="current-reading">
+                    <p class="condition-label" id="condition">Checking skies</p>
+                    <div class="temperature"><strong id="temperature">--</strong><span>&deg;C</span></div>
+                    <p class="feels">Feels like <strong id="feels-like">--</strong>&deg;C</p>
+                </div>
+                <div class="observation-note">
+                    <span class="note-label">The sky says</span>
+                    <strong id="description">Waiting for a clearer read</strong>
+                    <span class="note-rule"></span>
+                    <small>Atmospheric conditions at this moment</small>
+                </div>
+            </section>
+
+            <div class="detail-heading"><span>At a glance</span><span class="detail-line"></span><span
+                    id="date-label">Today</span></div>
+            <section class="metrics" aria-label="Weather details">
+                <article class="metric"><span class="metric-icon droplet-icon"></span><span
+                        class="metric-label">Humidity</span><strong id="humidity">--</strong><small>percent</small>
+                </article>
+                <article class="metric"><span class="metric-icon wind-icon"></span><span
+                        class="metric-label">Wind</span><strong id="wind">--</strong><small
+                        id="wind-direction">km/h</small></article>
+                <article class="metric"><span class="metric-icon pressure-icon"></span><span
+                        class="metric-label">Pressure</span><strong id="pressure">--</strong><small>hPa</small>
+                </article>
+                <article class="metric"><span class="metric-icon cloud-icon"></span><span class="metric-label">Cloud
+                        cover</span><strong id="cloudiness">--</strong><small>percent</small></article>
+                <article class="metric"><span class="metric-icon visibility-icon"></span><span
+                        class="metric-label">Visibility</span><strong id="visibility">--</strong><small>km</small>
+                </article>
+                <article class="metric sun-metric"><span class="metric-icon sun-icon"></span><span
+                        class="metric-label">Daylight</span><strong id="daylight">--</strong><small id="sunset">Sunset
+                        --</small></article>
+            </section>
+        </main>
+
+        <footer class="weather-footer"><span>ATMOS / 2026</span><span>Weather, beautifully observed</span></footer>
+    </div>
+    <script>
+        const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+        const setText = (id, value) => document.getElementById(id).textContent = value;
+
+        const loadWeather = async () => {
+            try {
+                const response = await fetch("/weatherdata");
+                if (!response.ok) throw new Error("Weather data unavailable");
+                const data = await response.json();
+                if (!data.city) throw new Error("No location selected");
+                const direction = directions[Math.round((data.windDirection || 0) / 45) % 8];
+                const iconClass = (data.icon || "").endsWith("n") ? "night" : "day";
+                document.getElementById("condition-visual").classList.add(iconClass, (data.condition || "").toLowerCase());
+                setText("location", `${data.city}, ${data.country}`);
+                setText("coordinates", `${Number(data.latitude).toFixed(3)}° N / ${Number(data.longitude).toFixed(3)}° E`);
+                setText("condition", data.condition);
+                setText("temperature", Math.round(data.temperature));
+                setText("feels-like", Number(data.feelsLike).toFixed(1));
+                setText("description", data.description);
+                setText("humidity", `${data.humidity}%`);
+                setText("wind", Number(data.windSpeed).toFixed(1));
+                setText("wind-direction", `${direction} / km/h`);
+                setText("pressure", data.pressure);
+                setText("cloudiness", `${data.cloudiness}%`);
+                setText("visibility", Number(data.visibility).toFixed(1));
+                setText("daylight", data.sunrise);
+                setText("sunset", `Sunset ${data.sunset}`);
+                setText("date-label", new Date().toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" }));
+            } catch (error) {
+                setText("location", "No observation yet");
+                setText("coordinates", "Return home to search for a city and country");
+                setText("condition", "Awaiting your location");
+                setText("description", error.message);
+            }
+        };
+        loadWeather();
+    </script>
+</body>
+
+</html>

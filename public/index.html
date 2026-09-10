@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b1d35">
+    <title>Atmos | Weather, beautifully observed</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="page-shell">
+        <div class="sky-glow sky-glow-one"></div>
+        <div class="sky-glow sky-glow-two"></div>
+        <div class="stars" aria-hidden="true"></div>
+        <header class="site-header">
+            <a class="brand" href="/" aria-label="Atmos home"><span
+                    class="brand-mark"><i></i><i></i><i></i></span><span>atmos<span
+                        class="brand-dot">.</span></span></a>
+            <div class="header-note"><span class="live-dot"></span> Live atmospheric data</div>
+        </header>
+        <main class="weather-layout">
+            <section class="intro-panel">
+                <p class="eyebrow"><span></span> Your window to the world</p>
+                <h1>Meet the mood<br>of the <em>sky.</em></h1>
+                <p class="intro-copy">A calmer way to check the weather. Find the forecast for anywhere on Earth and
+                    step outside with confidence.</p>
+
+
+
+                 <form class="search-card" action="details" method="POST"> 
+                    <div class="form-heading"><span class="pin-icon" aria-hidden="true"></span>
+                        <div><strong>Find your forecast</strong><span>Start with a city and country</span></div>
+                    </div>
+                    <div class="form-fields">
+                        <label for="city">City</label>
+                        <div class="input-wrap"><span class="input-icon city-icon" aria-hidden="true"></span><input
+                                type="text" id="city" name="city" placeholder="e.g. Copenhagen" required
+                                autocomplete="address-level2"></div>
+                        <label for="country">Country</label>
+                        <div class="input-wrap"><span class="input-icon globe-icon" aria-hidden="true"></span><input
+                                type="text" id="country" name="country" placeholder="e.g. Denmark" required
+                                autocomplete="country-name"></div>
+                    </div>
+                    <button type="submit">Explore weather <span aria-hidden="true">&#8594;</span></button>
+                </form>
+            </section>
+            <section class="weather-art" aria-label="Animated sunny weather illustration">
+                <div class="orbital-ring ring-one"></div>
+                <div class="orbital-ring ring-two"></div>
+                <div class="sun-rays"></div>
+                <div class="sun">
+                    <div class="sun-core"></div>
+                </div>
+                <div class="cloud cloud-back"><span></span><span></span></div>
+                <div class="cloud cloud-front"><span></span><span></span></div>
+                <div class="temperature"><strong>24</strong><span>°C</span></div>
+                <p class="art-caption">Somewhere bright<br><span>and full of possibility</span></p>
+            </section>
+        </main>
+        <footer class="feature-strip">
+            <div><span class="feature-icon breeze-icon"></span><span><b>Feel the breeze</b><small>Wind &amp;
+                        conditions</small></span></div>
+            <div><span class="feature-icon humidity-icon"></span><span><b>Read the air</b><small>Humidity &amp;
+                        visibility</small></span></div>
+            <div><span class="feature-icon compass-icon"></span><span><b>Go anywhere</b><small>Worldwide
+                        coverage</small></span></div>
+            <span class="footer-year">ATMOS / 2026</span>
+        </footer>
+    </div>
+</body>
+
+<script>
+    document.querySelector(".search-card").addEventListener("submit",async(event)=>{
+        event.preventDefault();
+        const formdata=new FormData(event.target);
+        const country=formdata.get("country");
+        const city=formdata.get("city");
+        console.log(country,city);
+        try{
+            const response=await fetch("/details", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ city, country })
+
+            });
+            if(response.ok){
+                alert("Details Sent Successfully");
+                event.target.reset();
+                window.location.href="/weather";
+            }
+        }
+        catch(err){
+            console.error(err.message);
+            alert(err.message);
+        }
+
+    });
+
+    const Getweatherdetails=async ()=>{
+        const response=await fetch("/weatherdata");
+        const data=await response.json();
+        console.log(data);
+    }
+</script>
+
+</html>
