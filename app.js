@@ -45,6 +45,14 @@ const fetchData = async () => {
 };
 
 const evalData = async (data) => {
+    const formatTime = (timestamp, timezone) => {
+        return new Date((timestamp + timezone) * 1000)
+            .toISOString()
+            .substring(11, 16);
+    };
+
+    const sunriseval= formatTime(data.sys.sunrise, data.timezone);
+    const sunsetval = formatTime(data.sys.sunset, data.timezone);
 
     const reqdata = {
 
@@ -71,8 +79,8 @@ const evalData = async (data) => {
         rainfall: data.rain?.["1h"] || 0,
         city: data.name,
         country: data.sys.country,
-        sunrise: new Date(data.sys.sunrise * 1000).toLocaleTimeString(),
-        sunset: new Date(data.sys.sunset * 1000).toLocaleTimeString()
+        sunrise: sunriseval,
+        sunset: sunsetval
     };
 
     await storeData(reqdata);
